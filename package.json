@@ -1,0 +1,42 @@
+{
+  "name": "dsh-cline-usage",
+  "version": "0.1.0",
+  "description": "Cline 用量看板：在 Web GUI 右上角实时显示 Cline 账户余额、上行/下行 token、缓存命中、调用次数与消耗金额，支持今日/本周/本月三个维度。",
+  "license": "MIT",
+  "type": "module",
+  "main": "index.js",
+  "keywords": [
+    "deepseek-harness",
+    "dsh",
+    "plugin",
+    "dsh-plugin",
+    "cline",
+    "usage",
+    "balance",
+    "dashboard"
+  ],
+  "files": [
+    "index.js",
+    "client.js",
+    "cordis.patch.yml",
+    "locale/*.json",
+    "icon.svg",
+    "README.md"
+  ],
+  "exports": {
+    ".": "./index.js",
+    "./client": "./client.js",
+    "./locale/*.json": "./locale/*.json",
+    "./icon": "./icon.svg",
+    "./package.json": "./package.json"
+  },
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "platform": "web",
+      "immediately": true
+    }
+  }
+}

@@ -1,0 +1,37 @@
+# dsh bundle patch: inserts this plugin into a profile's layer stack.
+#
+# 数据源是 Cline 官方账号 API（不是本地 ~/.cline 数据库），因为余额只有官方侧有：
+#   - 身份：GET /api/v1/users/me
+#   - 余额：GET /api/v1/users/<userId>/balance    （单位 1e-6 美元，即 credits）
+#   - 用量：GET /api/v1/users/<userId>/usages     （分页，limit 上限 200，不支持时间过滤）
+#   - 充值：GET /api/v1/users/<userId>/payments   （累计充值，用于算余额占比）
+# 凭据从 DSH credentials 服务按 ref 读取（默认 CLINE_API_KEY），不在客户端硬编码。
+#
+# 用量流水会在本地持久化成账本（见 dataFile），因为上游不支持时间过滤也没有聚合端点：
+# 每次刷新只增量追平最新页，区间统计（今日/本周/本月）全部在本地账本上算。
+- insert:
+    - id: cline-usage
+      name: 'dsh-cline-usage'
+      config:
+        # 读取 API Key 的 credentials ref 名（见 ~/.dsh/.credentials.yaml 的 refs）
+        credentialRef: CLINE_API_KEY
+        # Cline API 基址
+        apiBase: 'https://api.cline.bot'
+        # 余额与用量缓存的重新拉取间隔（毫秒），默认 60 秒
+        refreshIntervalMs: 60000
+        # 增量同步时最多翻多少页（追平最新即可停，通常 1~2 页）
+        maxUsagePages: 60
+        # 每次分页请求的条目数（Cline 服务端硬上限 200，传更大也只回 200）
+        usagePageSize: 200
+        # 账本保留天数：超出这个天数的流水会被裁剪，避免文件无限增长
+        retentionDays: 120
+        # 账本最多保留多少条流水（另一道上限）
+        maxItems: 60000
+        # 身份信息（email / 累计充值）的缓存时长，默认 6 小时
+        identityTtlMs: 21600000
+        # 「本周」从周几开始：1=周一（ISO），0=周日
+        weekStartsOn: 1
+        # 浮层默认展开状态
+        defaultExpanded: false
+        # 账本落盘路径，留空则用 $DSH_HOME/dsh-cline-usage/usage-ledger.json
+        # dataFile: '/absolute/path/usage-ledger.json'

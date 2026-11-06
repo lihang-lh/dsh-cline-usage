@@ -1,0 +1,9 @@
+node_modules/
+.env
+.env.*
+!.env.example
+.credentials*
+usage-ledger.json
+usage-ledger.json.tmp
+*.tgz
+.DS_Store
